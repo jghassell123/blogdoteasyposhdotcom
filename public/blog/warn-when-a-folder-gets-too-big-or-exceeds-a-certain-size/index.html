@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Warn When a Folder Gets Too Big or Exceeds a Certain Size - PowerShell for Total Beginners</title>
+  <meta name="author" content="Jonathan Hassell">
+
+  
+  <meta name="description" content="For the next few weeks I am going to highlight some useful scripts that you can use today no matter how experienced or how much of a novice you are &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.easyposh.com/blog/warn-when-a-folder-gets-too-big-or-exceeds-a-certain-size/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="PowerShell for Total Beginners" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">PowerShell for Total Beginners</a></h1>
+  
+    <h2>Unlocking the magic of PowerShell for Windows administrators worldwide.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="blog.easyposh.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Warn When a Folder Gets Too Big or Exceeds a Certain Size</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-10-13T14:16:13-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:16 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>For the next few weeks I am going to highlight some useful scripts that you can use today no matter how experienced or how much of a novice you are at PowerShell. These scripts are immediately practical and yet by taking a look at the structure of the script and how we are using the facilities of the PowerShell scripting language, we can learn a lot about how to write our own scripts.</p>
+
+<p>Do you have certain software that tends to write a lot of data to disk but isn&rsquo;t great about cleaning it up? Is there one specific directory you want to monitor and be alerted to once that directory&rsquo;s size grows above a certain threshold? This script does that: it looks at a specific path, monitors the size of a directory, and if it grows above a threshold value, it fires a warning message to the server console session and also writes an event (event ID 9990, to be specific) to the Application event log.</p>
+
+<p><code>Add-Type -Assembly System.Windows.Forms</p>
+
+<p>New-EventLog -LogName Application -Source &ldquo;Folder Size PowerShell Script&rdquo;</p>
+
+<p>$Threshold = 1024 * 1024 * 1024</p>
+
+<p>$Path = &ldquo;c:\directorytomonitor&rdquo;</p>
+
+<p>$WarningMessage = &ldquo;The size of folder $Path exceeds the space threshold that has been established.&rdquo;</p>
+
+<p>$scratchpad = Get-ChildItem $Path | Measure-Object -Property Length -sum</p>
+
+<p>$Value = $scratchpad.sum</p>
+
+<p>if( $Value -gt $Threshold) {
+Write-Warning $Message
+Write-EventLog -LogName Application -Source &ldquo;Folder Size PowerShell Script&rdquo; -EntryType Information -EventID 9990 -Message $WarningMessage
+$ScriptResult = [System.Windows.Forms.Messagebox]::Show($WarningMessage)
+}
+</code></p>
+
+<p>This one is fairly straightforward to walk through. First, we set up a bunch of variables to hold the directory we want to monitor, the threshold at which we want to be alerted, the message to be written out in the event the threshold is breached, and then the GCI to grab the size property from the path object. There is then simple logic equation: if that value is greater than threshold, then we&rsquo;ll fire a warning message and write a new event log entry. Pretty easy.</p>
+
+<p><i>hat tip to Paul Wolfson of Dallas Legal Technology</i></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Jonathan Hassell</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-10-13T14:16:13-04:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:16 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://blog.easyposh.com/blog/warn-when-a-folder-gets-too-big-or-exceeds-a-certain-size/" data-via="jghassell" data-counturl="http://blog.easyposh.com/blog/warn-when-a-folder-gets-too-big-or-exceeds-a-certain-size/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/turn-off-windows-10-automatic-wi-fi-password-sharing-wi-fi-sense/" title="Previous Post: Turn Off Windows 10 Automatic Wi-Fi Password Sharing (Wi-Fi Sense)">&laquo; Turn Off Windows 10 Automatic Wi-Fi Password Sharing (Wi-Fi Sense)</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/track-failed-logon-events-for-active-directory-domain-controllers/" title="Next Post: Track Failed Logon Events for Active Directory Domain Controllers">Track Failed Logon Events for Active Directory Domain Controllers &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/track-failed-logon-events-for-active-directory-domain-controllers/">Track Failed Logon Events for Active Directory Domain Controllers</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/warn-when-a-folder-gets-too-big-or-exceeds-a-certain-size/">Warn When a Folder Gets Too Big or Exceeds a Certain Size</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/turn-off-windows-10-automatic-wi-fi-password-sharing-wi-fi-sense/">Turn Off Windows 10 Automatic Wi-Fi Password Sharing (Wi-Fi Sense)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/adding-new-users-with-powershell/">Adding New Users With PowerShell</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/one-command-deploys-a-new-active-directory-infrastructure/">One Command Deploys a New Active Directory Infrastructure</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Jonathan Hassell -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

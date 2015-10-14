@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[PowerShell for Total Beginners]]></title>
+  <link href="http://blog.easyposh.com/atom.xml" rel="self"/>
+  <link href="http://blog.easyposh.com/"/>
+  <updated>2015-10-14T11:05:42-04:00</updated>
+  <id>http://blog.easyposh.com/</id>
+  <author>
+    <name><![CDATA[Jonathan Hassell]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Track Failed Logon Events for Active Directory Domain Controllers]]></title>
+    <link href="http://blog.easyposh.com/blog/track-failed-logon-events-for-active-directory-domain-controllers/"/>
+    <updated>2015-10-13T14:18:53-04:00</updated>
+    <id>http://blog.easyposh.com/blog/track-failed-logon-events-for-active-directory-domain-controllers</id>
+    <content type="html"><![CDATA[<p>For the next few weeks I am going to highlight some useful scripts that you can use today no matter how experienced or how much of a novice you are at PowerShell. These scripts are immediately practical and yet by taking a look at the structure of the script and how we are using the facilities of the PowerShell scripting language, we can learn a lot about how to write our own scripts.</p>
+
+<p>On a mailing list I am a member of, recently someone posted that they were searching for a simple way to see failed logon events by username from their two domain controllers, both running Windows Server 2012 and IIS 7.5. They wanted the username, IP address of machine that was attempted to be accessed, and source IP address of the request.</p>
+
+<p>PowerShell is great for this. Here’s a sample.</p>
+
+<p><code>Get-EventLog -logname Security -after 1/1/2015 -before 6/30/2015 | where {$_.eventID -eq 4625} | select MachineName,EventID,Source,TimeGenerated,EntryType,Message | Out-File C:\failedlogons.txt</code></p>
+
+<p>We&rsquo;re using the Get-EventLog cmdlet to look at only the Security event log within a specific time window (you can customize that of course) and then using the where-object cmdlet to select event 4625, which is the standard Windows event ID for a failed logon. From that object, we are grabbing the name of the machine, the event ID (4625), the source, date and time, and any message, and then we are using the Out-File cmdlet to write just that narrowed down, selected information to a file called C:\failedlogons.txt.</p>
+
+<p>To automate this, you&rsquo;d run it once a day by putting it into Scheduled Tasks and then slowly build your outfile with the data which you could then query by importing it into Excel and managing it there.</p>
+
+<p><i>hat tip to Alex Keller of Stanford University</i></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Warn When a Folder Gets Too Big or Exceeds a Certain Size]]></title>
+    <link href="http://blog.easyposh.com/blog/warn-when-a-folder-gets-too-big-or-exceeds-a-certain-size/"/>
+    <updated>2015-10-13T14:16:13-04:00</updated>
+    <id>http://blog.easyposh.com/blog/warn-when-a-folder-gets-too-big-or-exceeds-a-certain-size</id>
+    <content type="html"><![CDATA[<p>For the next few weeks I am going to highlight some useful scripts that you can use today no matter how experienced or how much of a novice you are at PowerShell. These scripts are immediately practical and yet by taking a look at the structure of the script and how we are using the facilities of the PowerShell scripting language, we can learn a lot about how to write our own scripts.</p>
+
+<p>Do you have certain software that tends to write a lot of data to disk but isn&rsquo;t great about cleaning it up? Is there one specific directory you want to monitor and be alerted to once that directory&rsquo;s size grows above a certain threshold? This script does that: it looks at a specific path, monitors the size of a directory, and if it grows above a threshold value, it fires a warning message to the server console session and also writes an event (event ID 9990, to be specific) to the Application event log.</p>
+
+<p><code>Add-Type -Assembly System.Windows.Forms</p>
+
+<p>New-EventLog -LogName Application -Source &ldquo;Folder Size PowerShell Script&rdquo;</p>
+
+<p>$Threshold = 1024 * 1024 * 1024</p>
+
+<p>$Path = &ldquo;c:\directorytomonitor&rdquo;</p>
+
+<p>$WarningMessage = &ldquo;The size of folder $Path exceeds the space threshold that has been established.&rdquo;</p>
+
+<p>$scratchpad = Get-ChildItem $Path | Measure-Object -Property Length -sum</p>
+
+<p>$Value = $scratchpad.sum</p>
+
+<p>if( $Value -gt $Threshold) {
+Write-Warning $Message
+Write-EventLog -LogName Application -Source &ldquo;Folder Size PowerShell Script&rdquo; -EntryType Information -EventID 9990 -Message $WarningMessage
+$ScriptResult = [System.Windows.Forms.Messagebox]::Show($WarningMessage)
+}
+</code></p>
+
+<p>This one is fairly straightforward to walk through. First, we set up a bunch of variables to hold the directory we want to monitor, the threshold at which we want to be alerted, the message to be written out in the event the threshold is breached, and then the GCI to grab the size property from the path object. There is then simple logic equation: if that value is greater than threshold, then we&rsquo;ll fire a warning message and write a new event log entry. Pretty easy.</p>
+
+<p><i>hat tip to Paul Wolfson of Dallas Legal Technology</i></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Turn Off Windows 10 Automatic Wi-Fi Password Sharing (Wi-Fi Sense)]]></title>
+    <link href="http://blog.easyposh.com/blog/turn-off-windows-10-automatic-wi-fi-password-sharing-wi-fi-sense/"/>
+    <updated>2015-10-13T14:13:41-04:00</updated>
+    <id>http://blog.easyposh.com/blog/turn-off-windows-10-automatic-wi-fi-password-sharing-wi-fi-sense</id>
+    <content type="html"><![CDATA[<p>Do the Internet a favor and disable / turn off Wi-Fi Sense in Windows 10.</p>
+
+<p>What is Windows 10 Wi-Fi Sense? It is Windows 10 automatically sharing wireless network passwords with your friends. It&rsquo;s wrong and a big security problem and you should just turn it off.</p>
+
+<p>It&rsquo;s pretty easy to do.</p>
+
+<p>Go to Settings > Network &amp; Internet > Wi-Fi > Manage Wi-Fi Settings.</p>
+
+<p>Uncheck the boxes beside Outlook.com contacts, Skype contacts, and Facebook friends.</p>
+
+<p>For increased security, turn off the option &ldquo;Connect to networks shared by my contacts&rdquo; and &ldquo;Connect to suggested open hotspots&rdquo; — this doesn&rsquo;t remove your ability to connect to any networks, but it does prevent Windows from automatically connecting to SSIDs.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Adding New Users With PowerShell]]></title>
+    <link href="http://blog.easyposh.com/blog/adding-new-users-with-powershell/"/>
+    <updated>2015-10-13T14:07:57-04:00</updated>
+    <id>http://blog.easyposh.com/blog/adding-new-users-with-powershell</id>
+    <content type="html"><![CDATA[<p><i>For the next few weeks I am going to highlight some useful scripts that you can use today no matter how experienced or how much of a novice you are at PowerShell. These scripts are immediately practical and yet by taking a look at the structure of the script and how we are using the facilities of the PowerShell scripting language, we can learn a lot about how to write our own scripts.</i></p>
+
+<p>Have you ever had a batch of users you needed to create accounts for, but you did not want to page through the wizards in Active Directory Users &amp; Computers? This kind of rote, repetitive task is exactly what Windows PowerShell is designed to handle.</p>
+
+<p><code>Import-Module ActiveDirectory
+Import-Csv &ldquo;C:\powershell\users.csv&rdquo; | ForEach-Object {
+$userPrincipal = $<em>.&ldquo;samAccountName&rdquo; + &ldquo;@yourdomain.local&rdquo;
+New-ADUser -Name $</em>.Name <code>
+-Path $_."ParentOU"</code>
+-SamAccountName $<em>.&ldquo;samAccountName&rdquo; <code>
+-UserPrincipalName $userPrincipal</code>
+-AccountPassword (ConvertTo-SecureString &ldquo;cheeseburgers4all&rdquo; -AsPlainText -Force) <code>
+-ChangePasswordAtLogon $true</code>
+-Enabled $true
+Add-ADGroupMember &ldquo;Office Users&rdquo; $</em>.&ldquo;samAccountName&rdquo;;
+}</code></p>
+
+<p>In this script, we use the Import-Csv cmdlet, which knows how to read .CSV formatted files. We tell the Import-CSV cmdlet that each row of the CSV located in C:\powershell called users.csv contains information in three columns – the Name of the user, the samAccountName of the user which is basically the login ID for the user, and the organizational unit (OU) of Active Directory that the user needs to live in – and that we are using the columns samAccount Name to create the login ID for the user by marrying the value that lives in that column with the string &ldquo;@yourdomain.local&rdquo; to complete the user principal name (UPN).</p>
+
+<p>From there, we loop through the file using ForEach-Object and send that assembled string (which is stored in the PowerShell variable name $userPrincipal).</p>
+
+<p>We assign the default password to each user &ldquo;cheeseburgers4all&rdquo; and then set the Active Directory flag to require the user to change the password at first logon. At the end of the script, we then add all of these accounts to the Active Directory security group called Office Users.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[One Command Deploys a New Active Directory Infrastructure]]></title>
+    <link href="http://blog.easyposh.com/blog/one-command-deploys-a-new-active-directory-infrastructure/"/>
+    <updated>2015-10-13T13:31:09-04:00</updated>
+    <id>http://blog.easyposh.com/blog/one-command-deploys-a-new-active-directory-infrastructure</id>
+    <content type="html"><![CDATA[<p>For the next few weeks I am going to highlight some useful scripts that you can use today no matter how experienced or how much of a novice you are at PowerShell. These scripts are immediately practical and yet by taking a look at the structure of the script and how we are using the facilities of the PowerShell scripting language, we can learn a lot about how to write our own scripts.</p>
+
+<p>For a new project I&rsquo;ve been building out a new lab infrastructure and as part of that I need to set up and deploy a totally new test environment consisting of Windows Server 2012 R2 and Exchange 2013. In order to be able to script this process as much as I can, I&rsquo;ve been trying to do everything installation-wise through PowerShell so that I can build up a decent automation library that will let me consistently recreate this environment if necessary with just a few keystrokes.</p>
+
+<p>Step one in this process, of course, was to set up a new Active Directory (AD) forest and domain controller. I installed Windows Server 2012 R2 on a new virtual machine and then as soon as I entered the password for the Administrator account, I opened a PowerShell prompt and used the following command:</p>
+
+<p><code>Install-ADDSForest
+-CreateDnsDelegation:$false <code>
+-DatabasePath "C:\Windows\NTDS"</code>
+-DomainMode &ldquo;Win2012R2&rdquo; <code>
+-DomainName "corp.salt-rose.com"</code>
+-DomainNetbiosName &ldquo;SALTROSE&rdquo; <code>
+-ForestMode "Win2012R2"</code>
+-InstallDns:$true <code>
+-LogPath "C:\Windows\NTDS"</code>
+-NoRebootOnCompletion:$false <code>
+-SysvolPath "C:\Windows\SYSVOL"</code>
+-Force:$true</code></p>
+
+<p>Enter that at the prompt and you will be prompted to enter the Directory Services Restore Mode password twice–this is a password you are creating, so choose wisely. Then it took about three minutes and I was signed out and the new forest and domain was ready. Pretty cool.</p>
+]]></content>
+  </entry>
+  
+</feed>

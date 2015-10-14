@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://blog.easyposh.com/blog/track-failed-logon-events-for-active-directory-domain-controllers/</loc>
+    <lastmod>2015-10-13T14:18:53-04:00</lastmod>
+  </url>
+  <url>
+    <loc>http://blog.easyposh.com/blog/warn-when-a-folder-gets-too-big-or-exceeds-a-certain-size/</loc>
+    <lastmod>2015-10-13T14:16:13-04:00</lastmod>
+  </url>
+  <url>
+    <loc>http://blog.easyposh.com/blog/turn-off-windows-10-automatic-wi-fi-password-sharing-wi-fi-sense/</loc>
+    <lastmod>2015-10-13T14:13:41-04:00</lastmod>
+  </url>
+  <url>
+    <loc>http://blog.easyposh.com/blog/adding-new-users-with-powershell/</loc>
+    <lastmod>2015-10-13T14:07:57-04:00</lastmod>
+  </url>
+  <url>
+    <loc>http://blog.easyposh.com/blog/one-command-deploys-a-new-active-directory-infrastructure/</loc>
+    <lastmod>2015-10-13T13:31:09-04:00</lastmod>
+  </url>
+  <url>
+    <loc>http://blog.easyposh.com/blog/archives/</loc>
+  </url>
+  <url>
+    <loc>http://blog.easyposh.com/</loc>
+  </url>
+</urlset>
